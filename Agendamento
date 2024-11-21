@@ -1,0 +1,126 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+struct Paciente {
+    string nome;
+    int idade;
+    string cpf;
+    bool prioridade;
+    Paciente* proximo;
+};
+
+struct ListaPacientes {
+    Paciente* inicio;
+
+    ListaPacientes() {
+        inicio = nullptr;
+    }
+
+    void inserirPaciente(const string& nome, int idade, const string& cpf, bool prioridade) {
+        Paciente* novoPaciente = new Paciente{nome, idade, cpf, prioridade, nullptr};
+
+        if (inicio == nullptr || (prioridade && !inicio->prioridade)) {
+            novoPaciente->proximo = inicio;
+            inicio = novoPaciente;
+        } else {
+            Paciente* atual = inicio;
+            Paciente* anterior = nullptr;
+
+            while (atual != nullptr && (atual->prioridade >= prioridade)) {
+                anterior = atual;
+                atual = atual->proximo;
+            }
+
+            novoPaciente->proximo = atual;
+            if (anterior != nullptr) {
+                anterior->proximo = novoPaciente;
+            }
+        }
+    }
+
+    void removerPaciente() {
+        if (inicio == nullptr) {
+            cout << "\n[!] Nenhum paciente na fila. Redirecionando para o menu...\n" << endl;
+            return;
+        }
+
+        Paciente* pacienteRemovido = inicio;
+        inicio = inicio->proximo;
+        cout << "\n[✓] Paciente atendido: " << pacienteRemovido->nome << endl;
+        delete pacienteRemovido;
+    }
+
+    void exibirPacientes() const {
+
+        if (inicio == nullptr) {
+            cout << "\n[!] Nenhum paciente foi adicionado ainda... Redirecionando para o menu...\n" << endl;
+            return;
+        }
+
+        cout << "\n==== Lista de Pacientes ====" << endl;
+        Paciente* atual = inicio;
+        while (atual != nullptr) {
+            cout << "Nome: " << atual->nome << ", Idade: " << atual->idade << ", CPF: " << atual->cpf << ", Prioridade: " << (atual->prioridade ? "Urgência" : "Normal") << endl;
+            atual = atual->proximo;
+        }
+        cout << "============================" << endl;
+    }
+};
+
+int main() {
+    ListaPacientes lista;
+
+    cout << "==================================" << endl;
+    cout << "|      MKI Agendamento Médico    |" << endl;
+    cout << "==================================" << endl;
+
+    int opcao;
+    do {
+        cout << "\nSelecione uma opção:" << endl;
+        cout << "1. Inserir novo paciente" << endl;
+        cout << "2. Remover paciente atendido" << endl;
+        cout << "3. Exibir lista de pacientes" << endl;
+        cout << "4. Sair do sistema" << endl;
+        cout << "Opção: ";
+        cin >> opcao;
+
+        switch (opcao) {
+            case 1: {
+                string nome, cpf;
+                int idade;
+                bool prioridade;
+
+                cout << "\n==== Inserir Novo Paciente ====" << endl;
+                cout << "Nome: ";
+                cin.ignore();
+                getline(cin, nome);
+                cout << "Idade: ";
+                cin >> idade;
+                cout << "CPF: ";
+                cin >> cpf;
+                cout << "Prioridade, [1] para urgência, [0] para normal: ";
+                cin >> prioridade;
+
+                lista.inserirPaciente(nome, idade, cpf, prioridade);
+                cout << "[✓] Paciente " << nome << " inserido com sucesso!" << endl;
+                break;
+            }
+            case 2:
+                cout << "\n==== Removendo Paciente ====" << endl;
+                lista.removerPaciente();
+                break;
+            case 3:
+                lista.exibirPacientes();
+                break;
+            case 4:
+                cout << "\nSaindo do sistema MKI Agendamento Médico. Obrigado!" << endl;
+                break;
+            default:
+                cout << "\n[!] Opção inválida. Tente novamente." << endl;
+        }
+    } while (opcao != 4);
+
+    return 0;
+}
